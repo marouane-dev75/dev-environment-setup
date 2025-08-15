@@ -18,6 +18,7 @@
       - net-tools
       - openssh-server
       - ffmpeg
+      - htop
     state: present
     update_cache: yes
   become: yes
