@@ -44,7 +44,7 @@ set termencoding=utf-8        " Set terminal encoding
 set history=1000              " Command history
 set undolevels=1000           " Undo history
 set title                     " Set terminal title
-set visualbell                " Use visual bell instead of beeping
+set novisualbell              " Disable visual bell (no flash on invalid keys)
 set noerrorbells              " No error bells
 set backup                    " Enable backup files
 set backupdir=~/.vim/backup   " Backup directory
@@ -151,24 +151,8 @@ nnoremap <C-f> :Rg<CR>
 " Set leader key
 let mapleader = ","
 
-" Quick save and quit
-nnoremap <leader>w :w<CR>
-nnoremap <leader>q :q<CR>
-nnoremap <leader>x :x<CR>
-
 " Clear search highlighting
 nnoremap <leader>/ :nohlsearch<CR>
-
-" Buffer navigation
-nnoremap <leader>n :bnext<CR>
-nnoremap <leader>p :bprevious<CR>
-nnoremap <leader>d :bdelete<CR>
-
-" Window navigation
-nnoremap <C-h> <C-w>h
-nnoremap <C-j> <C-w>j
-nnoremap <C-k> <C-w>k
-nnoremap <C-l> <C-w>l
 
 " Resize windows
 nnoremap <leader>+ :vertical resize +5<CR>
@@ -195,23 +179,6 @@ vnoremap > >gv
 
 " Clipboard Configuration and Mappings
 " ============================================================================
-" With clipboard=unnamedplus, normal y/p operations work with system clipboard
-" Additional explicit mappings for better control:
-"
-" Normal clipboard operations (work automatically with system clipboard):
-"   y  - yank (copy) to both vim register and system clipboard
-"   p  - paste from vim register (which syncs with system clipboard)
-"   P  - paste before cursor
-"   x  - cut character
-"   dd - cut line
-"
-" Explicit system clipboard operations (using + register):
-"   <leader>y  - copy to system clipboard
-"   <leader>Y  - copy line to system clipboard
-"   <leader>p  - paste from system clipboard
-"   <leader>P  - paste before cursor from system clipboard
-"   <leader>x  - cut to system clipboard
-
 " Copy to system clipboard
 vnoremap <leader>y "+y
 nnoremap <leader>y "+y
@@ -248,17 +215,6 @@ autocmd BufReadPost *
 
 " Highlight TODO, FIXME, NOTE, etc.
 autocmd Syntax * call matchadd('Todo', '\W\zs\(TODO\|FIXME\|CHANGED\|XXX\|BUG\|HACK\|NOTE\)')
-
-" Status line (if airline is not available)
-" ============================================================================
-if !exists('g:loaded_airline')
-    set laststatus=2
-    set statusline=%f         " Path to the file
-    set statusline+=%=        " Switch to the right side
-    set statusline+=%l        " Current line
-    set statusline+=/         " Separator
-    set statusline+=%L        " Total lines
-endif
 
 " Performance optimizations
 " ============================================================================
