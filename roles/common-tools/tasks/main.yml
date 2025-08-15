@@ -1,0 +1,68 @@
+---
+- name: Install common development tools
+  apt:
+    name:
+      - curl
+      - wget
+      - git
+      - pulseaudio-utils
+      - apt-transport-https
+      - ca-certificates
+      - gnupg
+      - maim
+      - bat
+      - nautilus
+      - tig
+      - lsb-release
+      - vlc
+      - net-tools
+      - openssh-server
+      - ffmpeg
+    state: present
+    update_cache: yes
+  become: yes
+  when: ansible_os_family == "Debian"
+
+- name: Verify git installation
+  command: git --version
+  register: git_version
+  changed_when: false
+  failed_when: git_version.rc != 0
+
+- name: Display git version
+  debug:
+    msg: "Git installed successfully: {{ git_version.stdout }}"
+
+- name: Verify curl installation
+  command: curl --version
+  register: curl_version
+  changed_when: false
+  failed_when: curl_version.rc != 0
+
+- name: Display curl version
+  debug:
+    msg: "Curl installed successfully: {{ curl_version.stdout_lines[0] }}"
+
+- name: Verify wget installation
+  command: wget --version
+  register: wget_version
+  changed_when: false
+  failed_when: wget_version.rc != 0
+
+- name: Display wget version
+  debug:
+    msg: "Wget installed successfully: {{ wget_version.stdout_lines[0] }}"
+
+- name: Verify pulseaudio-utils installation
+  command: pactl --version
+  register: pactl_version
+  changed_when: false
+  failed_when: pactl_version.rc != 0
+
+- name: Display pulseaudio-utils version
+  debug:
+    msg: "PulseAudio utils installed successfully: {{ pactl_version.stdout }}"
+
+- name: Display common tools installation summary
+  debug:
+    msg: "All common tools have been installed successfully!"

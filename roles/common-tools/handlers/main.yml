@@ -1,0 +1,5 @@
+---
+# Handlers for common-tools role
+# Currently no handlers are needed for this role
+# as all tasks are idempotent and don't require
+# service restarts or configuration reloads

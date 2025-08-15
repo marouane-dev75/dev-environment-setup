@@ -1,0 +1,8 @@
+---
+- name: tmux config backed up
+  debug:
+    msg: "Existing tmux config has been backed up"
+
+- name: tmux config updated
+  debug:
+    msg: "Tmux configuration has been updated. Reload with 'tmux source-file ~/.tmux.conf' or restart tmux sessions"

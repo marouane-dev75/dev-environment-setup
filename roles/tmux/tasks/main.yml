@@ -1,0 +1,55 @@
+---
+- name: Install tmux
+  apt:
+    name: tmux
+    state: present
+  become: yes
+  when: ansible_os_family == "Debian"
+
+- name: Verify tmux installation
+  command: tmux -V
+  register: tmux_version
+  changed_when: false
+  failed_when: tmux_version.rc != 0
+
+- name: Display tmux version
+  debug:
+    msg: "Tmux installed successfully: {{ tmux_version.stdout }}"
+
+- name: Check if existing tmux config exists
+  stat:
+    path: "{{ ansible_env.HOME }}/.tmux.conf"
+    checksum_algorithm: sha256
+  register: existing_tmux_config
+
+- name: Get source tmux config checksum
+  stat:
+    path: "{{ role_path }}/files/tmux.conf"
+    checksum_algorithm: sha256
+  register: source_tmux_config
+  delegate_to: localhost
+
+- name: Compare tmux config files
+  set_fact:
+    tmux_config_needs_update: "{{ not existing_tmux_config.stat.exists or existing_tmux_config.stat.checksum != source_tmux_config.stat.checksum }}"
+
+- name: Backup existing tmux config
+  copy:
+    src: "{{ ansible_env.HOME }}/.tmux.conf"
+    dest: "{{ ansible_env.HOME }}/.tmux.conf.backup.{{ ansible_date_time.epoch }}"
+    remote_src: yes
+  when: existing_tmux_config.stat.exists and tmux_config_needs_update
+  notify: tmux config backed up
+
+- name: Deploy default tmux configuration
+  copy:
+    src: tmux.conf
+    dest: "{{ ansible_env.HOME }}/.tmux.conf"
+    mode: '0644'
+    backup: no
+  when: tmux_config_needs_update
+  notify: tmux config updated
+
+- name: Display tmux config deployment message
+  debug:
+    msg: "Tmux configuration deployed to {{ ansible_env.HOME }}/.tmux.conf"

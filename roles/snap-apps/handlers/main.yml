@@ -1,0 +1,4 @@
+---
+# Handlers for snap-apps role
+# Currently no handlers are needed for snap applications
+# This file is kept for consistency with other roles

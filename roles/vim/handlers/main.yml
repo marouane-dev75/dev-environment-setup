@@ -1,0 +1,8 @@
+---
+- name: vimrc config backed up
+  debug:
+    msg: "Existing vimrc config has been backed up"
+
+- name: vimrc config updated
+  debug:
+    msg: "Vim configuration has been updated. NERDTree can be toggled with F2. Use :PlugInstall to install additional plugins if needed."

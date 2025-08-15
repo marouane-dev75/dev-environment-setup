@@ -1,0 +1,126 @@
+---
+- name: Check if snapd is installed
+  command: which snapd
+  register: snapd_check
+  changed_when: false
+  failed_when: false
+
+- name: Install snapd package
+  apt:
+    name: snapd
+    state: present
+    update_cache: yes
+  become: yes
+  when: ansible_os_family == "Debian" and snapd_check.rc != 0
+
+- name: Ensure snapd service is running
+  systemd:
+    name: snapd
+    state: started
+    enabled: yes
+  become: yes
+  when: ansible_os_family == "Debian"
+
+- name: Wait for snap to be ready
+  command: snap wait system seed.loaded
+  become: yes
+  changed_when: false
+  when: ansible_os_family == "Debian"
+
+- name: Verify snapd installation
+  command: snap version
+  register: snap_version
+  changed_when: false
+  failed_when: snap_version.rc != 0
+
+- name: Display snapd version
+  debug:
+    msg: "Snapd installed successfully: {{ snap_version.stdout_lines[0] }}"
+
+- name: Display snapd installation summary
+  debug:
+    msg: "Snapd has been installed and configured successfully!"
+
+- name: Check if Inkscape is already installed via snap
+  command: snap list inkscape
+  register: inkscape_check
+  changed_when: false
+  failed_when: false
+  become: yes
+
+- name: Install Inkscape via snap
+  snap:
+    name: inkscape
+    state: present
+  become: yes
+  when: inkscape_check.rc != 0
+  register: inkscape_install
+
+- name: Check if GIMP is already installed via snap
+  command: snap list gimp
+  register: gimp_check
+  changed_when: false
+  failed_when: false
+  become: yes
+
+- name: Install GIMP via snap
+  snap:
+    name: gimp
+    state: present
+  become: yes
+  when: gimp_check.rc != 0
+  register: gimp_install
+
+- name: Verify Inkscape installation
+  command: inkscape --version
+  register: inkscape_version
+  changed_when: false
+  failed_when: inkscape_version.rc != 0
+
+- name: Display Inkscape version
+  debug:
+    msg: "Inkscape installed successfully: {{ inkscape_version.stdout_lines[0] }}"
+
+- name: Verify GIMP installation
+  command: gimp --version
+  register: gimp_version
+  changed_when: false
+  failed_when: gimp_version.rc != 0
+
+- name: Display GIMP version
+  debug:
+    msg: "GIMP installed successfully: {{ gimp_version.stdout_lines[0] }}"
+
+- name: Display snap applications installation summary
+  debug:
+    msg: "Snap applications (Inkscape, GIMP) have been installed successfully!"
+
+- name: Check if VSCode is already installed via snap
+  command: snap list code
+  register: vscode_check
+  changed_when: false
+  failed_when: false
+  become: yes
+
+- name: Install VSCode via snap
+  snap:
+    name: code
+    classic: yes
+    state: present
+  become: yes
+  when: vscode_check.rc != 0
+  register: vscode_install
+
+- name: Verify VSCode installation
+  command: code --version
+  register: vscode_version
+  changed_when: false
+  failed_when: vscode_version.rc != 0
+
+- name: Display VSCode version
+  debug:
+    msg: "VSCode installed successfully: {{ vscode_version.stdout_lines[0] }}"
+
+- name: Display VSCode installation summary
+  debug:
+    msg: "VSCode has been installed successfully via snap package!"

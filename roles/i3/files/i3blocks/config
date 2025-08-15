@@ -1,0 +1,82 @@
+# i3blocks config file
+#
+# Please see man i3blocks for a complete reference!
+# The man page is also hosted at http://vivien.github.io/i3blocks
+#
+# List of valid properties:
+#
+# align
+# color
+# command
+# full_text
+# instance
+# interval
+# label
+# min_width
+# name
+# separator
+# separator_block_width
+# short_text
+# signal
+# urgent
+
+# Global properties
+#
+# The top properties below are applied to every block, but can be overridden.
+# Each block command defaults to the script name to avoid boilerplate.
+command=/usr/share/i3blocks/$BLOCK_NAME
+separator_block_width=15
+markup=none
+
+[pomodoro]
+command=~/.config/i3blocks/pomodoro.sh
+interval=1
+
+[volume]
+label=VOL
+command=if [ "$BLOCK_BUTTON" = "1" ]; then pavucontrol; else amixer get Master | grep -E -o '[0-9]{1,3}%' | head -1; fi
+interval=1
+
+[weather]
+command=curl -s "https://wttr.in/Lille?format=%C+%t&m" | awk '{weather=$1; temp=$2; if (weather=="Clear") {emoji="☀️"} else if (weather=="Sunny") {emoji="☀️"} else if (weather=="PartlyCloudy") {emoji="⛅"} else if (weather=="Cloudy") {emoji="☁️"} else if (weather=="Overcast") {emoji="☁️"} else if (weather=="Mist"||weather=="Fog") {emoji="🌫️"} else if (weather=="Patchy"&&match(weather,/rain/)) {emoji="🌦️"} else if (weather=="Light"&&match(weather,/rain/)) {emoji="🌦️"} else if (match(weather,/Rain/)||match(weather,/rain/)) {emoji="🌧️"} else if (match(weather,/Snow/)||match(weather,/snow/)) {emoji="❄️"} else if (match(weather,/Thunderstorm/)||match(weather,/thunder/)) {emoji="⛈️"} else {emoji="🌡️"}; gsub(/\+/,"",temp); print emoji" "temp}'
+interval=600
+
+[ip_vpn]
+command=~/.config/i3blocks/ip_vpn_check.sh
+interval=60
+markup=pango
+
+[battery]
+label=BAT
+command=/usr/share/i3blocks/battery
+interval=30
+
+# CPU usage
+[cpu_usage]
+label=CPU
+command=/usr/share/i3blocks/cpu_usage
+interval=10
+
+# GPU usage (NVIDIA)
+[gpu_usage]
+label=GPU
+command=~/.config/i3blocks/gpu_usage.sh
+interval=5
+
+# Memory usage
+[memory]
+label=MEM
+command=/usr/share/i3blocks/memory
+interval=30
+
+# Disk usage
+[disk]
+label=DISK
+command=df -h | grep /dev/nvme0n1p5 | awk '{print $4}'
+interval=30
+
+# Date Time
+[time]
+command=echo "<span font_weight='bold'>$(date '+%d/%m/%Y - %H:%M')</span>"
+interval=10
+markup=pango

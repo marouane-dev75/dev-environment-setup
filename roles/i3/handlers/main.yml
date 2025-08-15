@@ -1,0 +1,24 @@
+---
+- name: i3 config backed up
+  debug:
+    msg: "Existing i3 config has been backed up"
+
+- name: i3 config updated
+  debug:
+    msg: "i3 configuration has been updated. Restart i3 with Mod+Shift+r to apply changes"
+
+- name: i3blocks config backed up
+  debug:
+    msg: "Existing i3blocks config has been backed up"
+
+- name: i3blocks config updated
+  debug:
+    msg: "i3blocks configuration has been updated. Restart i3 with Mod+Shift+r to apply changes"
+
+- name: i3blocks scripts updated
+  debug:
+    msg: "i3blocks scripts have been updated and are now executable"
+
+- name: i3blocks sounds updated
+  debug:
+    msg: "i3blocks sound files have been deployed for pomodoro notifications"

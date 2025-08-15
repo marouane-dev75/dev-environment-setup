@@ -1,0 +1,34 @@
+---
+- name: Find all font directories in files folder
+  find:
+    paths: "{{ role_path }}/files"
+    file_type: directory
+    depth: 1
+  register: font_directories
+  delegate_to: localhost
+
+- name: Check which font directories already exist in system
+  stat:
+    path: "/usr/share/fonts/truetype/{{ item.path | basename }}"
+  register: existing_fonts
+  loop: "{{ font_directories.files }}"
+
+- name: Copy font directories that don't exist
+  copy:
+    src: "{{ item.item.path | basename }}/"
+    dest: "/usr/share/fonts/truetype/{{ item.item.path | basename }}/"
+    mode: '0644'
+    directory_mode: '0755'
+  become: yes
+  when: not item.stat.exists
+  loop: "{{ existing_fonts.results }}"
+  notify: refresh font cache
+
+- name: Display font installation status
+  debug:
+    msg: "{{ 'Installed: ' + item.item.path | basename if not item.stat.exists else 'Already exists: ' + item.item.path | basename }}"
+  loop: "{{ existing_fonts.results }}"
+
+- name: Display fonts installation summary
+  debug:
+    msg: "Font installation process completed!"

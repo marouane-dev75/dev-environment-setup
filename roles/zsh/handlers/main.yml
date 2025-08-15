@@ -1,0 +1,4 @@
+---
+- name: zshrc config updated
+  debug:
+    msg: "Zsh configuration updated at ~/.zshrc with custom aliases and plugins. Previous version backed up automatically."

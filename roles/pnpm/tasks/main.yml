@@ -1,0 +1,88 @@
+---
+- name: Check if pnpm is already installed
+  command: which pnpm
+  register: pnpm_check
+  changed_when: false
+  failed_when: false
+
+- name: Display pnpm already installed message
+  debug:
+    msg: "pnpm is already installed, skipping installation steps"
+  when: pnpm_check.rc == 0
+
+- name: Download and install nvm
+  shell: |
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+  args:
+    creates: "~/.nvm/nvm.sh"
+  when: pnpm_check.rc != 0
+
+- name: Source nvm and install latest LTS Node.js
+  shell: |
+    source ~/.nvm/nvm.sh && nvm install --lts && nvm use --lts
+  args:
+    executable: /bin/bash
+  register: node_install
+  failed_when: node_install.rc != 0
+  when: pnpm_check.rc != 0
+
+- name: Install pnpm using npm
+  shell: |
+    source ~/.nvm/nvm.sh && npm install -g pnpm
+  args:
+    executable: /bin/bash
+  register: pnpm_install
+  failed_when: pnpm_install.rc != 0
+  when: pnpm_check.rc != 0
+
+- name: Verify pnpm installation
+  shell: |
+    if [ -f ~/.nvm/nvm.sh ]; then
+      source ~/.nvm/nvm.sh && pnpm --version
+    else
+      pnpm --version
+    fi
+  args:
+    executable: /bin/bash
+  register: pnpm_version
+  changed_when: false
+
+- name: Display pnpm version
+  debug:
+    msg: "pnpm installed successfully: {{ pnpm_version.stdout }}"
+
+- name: Verify Node.js installation
+  shell: |
+    if [ -f ~/.nvm/nvm.sh ]; then
+      source ~/.nvm/nvm.sh && node --version
+    else
+      node --version
+    fi
+  args:
+    executable: /bin/bash
+  register: node_version
+  changed_when: false
+
+- name: Display Node.js version
+  debug:
+    msg: "Node.js version: {{ node_version.stdout }}"
+
+- name: Create shell config directory
+  file:
+    path: "~/.config/shell"
+    state: directory
+    mode: '0755'
+
+- name: Create nvm configuration snippet
+  copy:
+    content: |
+      # NVM configuration
+      export NVM_DIR="$HOME/.nvm"
+      [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+      [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+    dest: "~/.config/shell/nvm.sh"
+    mode: '0644'
+
+- name: Display shell configuration notice
+  debug:
+    msg: "NVM configuration has been created at ~/.config/shell/nvm.sh. This will be automatically sourced by zsh configuration."

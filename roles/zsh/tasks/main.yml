@@ -1,0 +1,130 @@
+---
+- name: Install zsh
+  apt:
+    name: zsh
+    state: present
+  become: yes
+  when: ansible_os_family == "Debian"
+
+- name: Check if oh-my-zsh is already installed
+  stat:
+    path: "~/.oh-my-zsh"
+  register: ohmyzsh_stat
+
+- name: Install oh-my-zsh
+  shell: |
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+  when: not ohmyzsh_stat.stat.exists
+
+- name: Install fzf
+  apt:
+    name: fzf
+    state: present
+  become: yes
+  when: ansible_os_family == "Debian"
+
+- name: Create oh-my-zsh custom plugins directory
+  file:
+    path: "~/.oh-my-zsh/custom/plugins"
+    state: directory
+    mode: '0755'
+
+- name: Check if zsh-autosuggestions plugin exists
+  stat:
+    path: "~/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
+  register: autosuggestions_stat
+
+- name: Install zsh-autosuggestions plugin
+  git:
+    repo: https://github.com/zsh-users/zsh-autosuggestions
+    dest: "~/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
+    depth: 1
+  when: not autosuggestions_stat.stat.exists
+
+- name: Check if zsh-syntax-highlighting plugin exists
+  stat:
+    path: "~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting"
+  register: syntax_highlighting_stat
+
+- name: Install zsh-syntax-highlighting plugin
+  git:
+    repo: https://github.com/zsh-users/zsh-syntax-highlighting.git
+    dest: "~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting"
+    depth: 1
+  when: not syntax_highlighting_stat.stat.exists
+
+- name: Check if zsh-bat plugin exists
+  stat:
+    path: "~/.oh-my-zsh/custom/plugins/zsh-bat"
+  register: bat_plugin_stat
+
+- name: Install zsh-bat plugin
+  git:
+    repo: https://github.com/fdellwing/zsh-bat.git
+    dest: "~/.oh-my-zsh/custom/plugins/zsh-bat"
+    depth: 1
+  when: not bat_plugin_stat.stat.exists
+
+- name: Install bat (required for zsh-bat plugin)
+  apt:
+    name: bat
+    state: present
+  become: yes
+  when: ansible_os_family == "Debian"
+
+- name: Check if existing zshrc exists
+  stat:
+    path: "~/.zshrc"
+    checksum_algorithm: sha256
+  register: existing_zshrc
+
+- name: Get checksum of new zshrc template
+  stat:
+    path: "{{ role_path }}/files/zshrc"
+    checksum_algorithm: sha256
+  register: new_zshrc
+  delegate_to: localhost
+
+- name: Compare zshrc files
+  set_fact:
+    zshrc_needs_update: "{{ not existing_zshrc.stat.exists or existing_zshrc.stat.checksum != new_zshrc.stat.checksum }}"
+
+- name: Deploy custom zsh configuration with backup
+  copy:
+    src: zshrc
+    dest: "~/.zshrc"
+    mode: '0644'
+    backup: yes
+  when: zshrc_needs_update
+  notify: zshrc config updated
+
+- name: Skip zshrc update (no changes needed)
+  debug:
+    msg: "Zsh configuration is already up to date, no changes needed"
+  when: not zshrc_needs_update
+
+- name: Check if zsh binary exists
+  stat:
+    path: /usr/bin/zsh
+  register: zsh_binary
+
+- name: Set zsh as default shell for current user
+  user:
+    name: "{{ ansible_env.USER }}"
+    shell: /usr/bin/zsh
+  become: yes
+  when: zsh_binary.stat.exists
+
+- name: Verify zsh installation
+  command: zsh --version
+  register: zsh_version
+  changed_when: false
+  failed_when: zsh_version.rc != 0
+
+- name: Display zsh version
+  debug:
+    msg: "Zsh installed successfully: {{ zsh_version.stdout }}"
+
+- name: Display shell change notice
+  debug:
+    msg: "Zsh has been set as the default shell. You may need to log out and back in for the change to take effect."

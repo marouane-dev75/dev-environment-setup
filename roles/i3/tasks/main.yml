@@ -1,0 +1,251 @@
+---
+- name: Install i3 window manager and dependencies
+  apt:
+    name:
+      - i3
+      - i3status
+      - i3blocks
+      - i3lock
+      - dmenu
+      - xorg
+      - rofi
+      - scrot
+    state: present
+  become: yes
+  when: ansible_os_family == "Debian"
+
+- name: Verify i3 installation
+  command: i3 --version
+  register: i3_version
+  changed_when: false
+  failed_when: i3_version.rc != 0
+
+- name: Display i3 version
+  debug:
+    msg: "i3 window manager installed successfully: {{ i3_version.stdout_lines[0] }}"
+
+- name: Display i3 usage note
+  debug:
+    msg: "Note: i3 requires X11. Use 'startx i3' or configure display manager to use i3 session."
+
+- name: Create i3 config directory
+  file:
+    path: "{{ ansible_env.HOME }}/.config/i3"
+    state: directory
+    mode: '0755'
+
+- name: Check if existing i3 config exists
+  stat:
+    path: "{{ ansible_env.HOME }}/.config/i3/config"
+    checksum_algorithm: sha256
+  register: existing_i3_config
+
+- name: Get source i3 config checksum
+  stat:
+    path: "{{ role_path }}/files/i3/config"
+    checksum_algorithm: sha256
+  register: source_i3_config
+  delegate_to: localhost
+
+- name: Backup existing i3 config
+  copy:
+    src: "{{ ansible_env.HOME }}/.config/i3/config"
+    dest: "{{ ansible_env.HOME }}/.config/i3/config.backup.{{ ansible_date_time.epoch }}"
+    remote_src: yes
+  when: 
+    - existing_i3_config.stat.exists
+    - existing_i3_config.stat.checksum != source_i3_config.stat.checksum
+  notify: i3 config backed up
+
+- name: Deploy default i3 configuration
+  copy:
+    src: i3/config
+    dest: "{{ ansible_env.HOME }}/.config/i3/config"
+    mode: '0644'
+    backup: no
+  when: 
+    - not existing_i3_config.stat.exists or existing_i3_config.stat.checksum != source_i3_config.stat.checksum
+  notify: i3 config updated
+
+- name: Display i3 config deployment message
+  debug:
+    msg: "i3 configuration deployed to {{ ansible_env.HOME }}/.config/i3/config"
+  when: 
+    - not existing_i3_config.stat.exists or existing_i3_config.stat.checksum != source_i3_config.stat.checksum
+
+- name: Create i3blocks config directory
+  file:
+    path: "{{ ansible_env.HOME }}/.config/i3blocks"
+    state: directory
+    mode: '0755'
+
+- name: Check if existing i3blocks config exists
+  stat:
+    path: "{{ ansible_env.HOME }}/.config/i3blocks/config"
+    checksum_algorithm: sha256
+  register: existing_i3blocks_config
+
+- name: Get source i3blocks config checksum
+  stat:
+    path: "{{ role_path }}/files/i3blocks/config"
+    checksum_algorithm: sha256
+  register: source_i3blocks_config
+  delegate_to: localhost
+
+- name: Backup existing i3blocks config
+  copy:
+    src: "{{ ansible_env.HOME }}/.config/i3blocks/config"
+    dest: "{{ ansible_env.HOME }}/.config/i3blocks/config.backup.{{ ansible_date_time.epoch }}"
+    remote_src: yes
+  when: 
+    - existing_i3blocks_config.stat.exists
+    - existing_i3blocks_config.stat.checksum != source_i3blocks_config.stat.checksum
+  notify: i3blocks config backed up
+
+- name: Deploy default i3blocks configuration
+  copy:
+    src: i3blocks/config
+    dest: "{{ ansible_env.HOME }}/.config/i3blocks/config"
+    mode: '0644'
+    backup: no
+  when: 
+    - not existing_i3blocks_config.stat.exists or existing_i3blocks_config.stat.checksum != source_i3blocks_config.stat.checksum
+  notify: i3blocks config updated
+
+- name: Display i3blocks config deployment message
+  debug:
+    msg: "i3blocks configuration deployed to {{ ansible_env.HOME }}/.config/i3blocks/config"
+  when: 
+    - not existing_i3blocks_config.stat.exists or existing_i3blocks_config.stat.checksum != source_i3blocks_config.stat.checksum
+
+- name: Check existing i3blocks IP VPN check script
+  stat:
+    path: "{{ ansible_env.HOME }}/.config/i3blocks/ip_vpn_check.sh"
+    checksum_algorithm: sha256
+  register: existing_ip_vpn_script
+
+- name: Get source IP VPN check script checksum
+  stat:
+    path: "{{ role_path }}/files/i3blocks/ip_vpn_check.sh"
+    checksum_algorithm: sha256
+  register: source_ip_vpn_script
+  delegate_to: localhost
+
+- name: Deploy i3blocks IP VPN check script
+  copy:
+    src: i3blocks/ip_vpn_check.sh
+    dest: "{{ ansible_env.HOME }}/.config/i3blocks/ip_vpn_check.sh"
+    mode: '0755'
+    backup: no
+  when: 
+    - not existing_ip_vpn_script.stat.exists or existing_ip_vpn_script.stat.checksum != source_ip_vpn_script.stat.checksum
+  notify: i3blocks scripts updated
+
+- name: Check existing i3blocks pomodoro script
+  stat:
+    path: "{{ ansible_env.HOME }}/.config/i3blocks/pomodoro.sh"
+    checksum_algorithm: sha256
+  register: existing_pomodoro_script
+
+- name: Get source pomodoro script checksum
+  stat:
+    path: "{{ role_path }}/files/i3blocks/pomodoro.sh"
+    checksum_algorithm: sha256
+  register: source_pomodoro_script
+  delegate_to: localhost
+
+- name: Deploy i3blocks pomodoro script
+  copy:
+    src: i3blocks/pomodoro.sh
+    dest: "{{ ansible_env.HOME }}/.config/i3blocks/pomodoro.sh"
+    mode: '0755'
+    backup: no
+  when: 
+    - not existing_pomodoro_script.stat.exists or existing_pomodoro_script.stat.checksum != source_pomodoro_script.stat.checksum
+  notify: i3blocks scripts updated
+
+- name: Check existing i3blocks GPU usage script
+  stat:
+    path: "{{ ansible_env.HOME }}/.config/i3blocks/gpu_usage.sh"
+    checksum_algorithm: sha256
+  register: existing_gpu_script
+
+- name: Get source GPU usage script checksum
+  stat:
+    path: "{{ role_path }}/files/i3blocks/gpu_usage.sh"
+    checksum_algorithm: sha256
+  register: source_gpu_script
+  delegate_to: localhost
+
+- name: Deploy i3blocks GPU usage script
+  copy:
+    src: i3blocks/gpu_usage.sh
+    dest: "{{ ansible_env.HOME }}/.config/i3blocks/gpu_usage.sh"
+    mode: '0755'
+    backup: no
+  when: 
+    - not existing_gpu_script.stat.exists or existing_gpu_script.stat.checksum != source_gpu_script.stat.checksum
+  notify: i3blocks scripts updated
+
+- name: Display i3blocks scripts deployment message
+  debug:
+    msg: "i3blocks scripts deployed to {{ ansible_env.HOME }}/.config/i3blocks/"
+  when: >
+    (not existing_ip_vpn_script.stat.exists or existing_ip_vpn_script.stat.checksum != source_ip_vpn_script.stat.checksum) or
+    (not existing_pomodoro_script.stat.exists or existing_pomodoro_script.stat.checksum != source_pomodoro_script.stat.checksum) or
+    (not existing_gpu_script.stat.exists or existing_gpu_script.stat.checksum != source_gpu_script.stat.checksum)
+
+- name: Create i3blocks sounds directory
+  file:
+    path: "{{ ansible_env.HOME }}/.config/i3blocks/sounds"
+    state: directory
+    mode: '0755'
+
+- name: Check existing sound files
+  find:
+    paths: "{{ ansible_env.HOME }}/.config/i3blocks/sounds"
+    file_type: file
+  register: existing_sound_files
+
+- name: Get source sound files
+  find:
+    paths: "{{ role_path }}/files/i3blocks/sounds"
+    file_type: file
+  register: source_sound_files
+  delegate_to: localhost
+
+- name: Get checksums of existing sound files
+  stat:
+    path: "{{ item.path }}"
+    checksum_algorithm: sha256
+  register: existing_sound_checksums
+  loop: "{{ existing_sound_files.files }}"
+  when: existing_sound_files.files | length > 0
+
+- name: Get checksums of source sound files
+  stat:
+    path: "{{ item.path }}"
+    checksum_algorithm: sha256
+  register: source_sound_checksums
+  loop: "{{ source_sound_files.files }}"
+  delegate_to: localhost
+
+- name: Deploy i3blocks sound files
+  copy:
+    src: i3blocks/sounds/
+    dest: "{{ ansible_env.HOME }}/.config/i3blocks/sounds/"
+    mode: '0644'
+    backup: no
+  when: >
+    (existing_sound_files.files | length) != (source_sound_files.files | length) or
+    (existing_sound_checksums.results | default([]) | map(attribute='stat.checksum') | list | sort) != 
+    (source_sound_checksums.results | map(attribute='stat.checksum') | list | sort)
+  notify: i3blocks sounds updated
+
+- name: Display i3blocks sounds deployment message
+  debug:
+    msg: "i3blocks sound files deployed to {{ ansible_env.HOME }}/.config/i3blocks/sounds/"
+  when: >
+    (existing_sound_files.files | length) != (source_sound_files.files | length) or
+    (existing_sound_checksums.results | default([]) | map(attribute='stat.checksum') | list | sort) != 
+    (source_sound_checksums.results | map(attribute='stat.checksum') | list | sort)
