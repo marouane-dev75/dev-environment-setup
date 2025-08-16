@@ -183,6 +183,7 @@ bindsym $mod+minus scratchpad show
 
 # Lock screen
 bindsym $mod+Ctrl+l exec --no-startup-id i3lock
+exec --no-startup-id xset s off -dpms
 
 # Screenshot
 bindsym Print exec --no-startup-id scrot
