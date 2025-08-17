@@ -100,6 +100,7 @@ bindsym $mod+8 workspace number $ws8
 bindsym $mod+9 workspace number $ws9
 bindsym $mod+0 workspace number $ws10
 bindsym $mod+g workspace $wsgit
+bindsym $mod+m move workspace to output right
 
 # move focused container to workspace
 bindsym $mod+Shift+1 move container to workspace number $ws1
@@ -159,23 +160,20 @@ bar {
         }
 }
 
-# Window colors
-# class                 border  backgr. text    indicator child_border
-client.focused          #adcbff #285577 #ffffff #2e9ef4   #adcbff
+# border
+default_border none
+client.focused          #4c7899 #285577 #ffffff #2e9ef4   #ffffff
 client.focused_inactive #333333 #5f676a #ffffff #484e50   #5f676a
 client.unfocused        #333333 #222222 #888888 #292d2e   #222222
 client.urgent           #2f343a #900000 #ffffff #900000   #900000
 client.placeholder      #000000 #0c0c0c #ffffff #000000   #0c0c0c
-
 client.background       #ffffff
+for_window [class="^.*"] border pixel 2
 
-# Window borders
-default_border pixel 2
-default_floating_border pixel 2
 
-# Gapsg
-gaps inner 4
-gaps outer 2
+# Gaps
+gaps inner 10
+smart_gaps on
 
 # Additional useful bindings
 bindsym $mod+Shift+minus move scratchpad
