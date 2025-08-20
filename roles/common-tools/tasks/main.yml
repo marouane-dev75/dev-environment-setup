@@ -5,6 +5,8 @@
       - curl
       - wget
       - git
+      - git-flow
+      - graphviz
       - pulseaudio-utils
       - apt-transport-https
       - ca-certificates
