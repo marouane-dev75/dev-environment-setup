@@ -38,8 +38,18 @@ An Ansible-powered toolkit that transforms your fresh Linux installation into a 
 git clone https://github.com/marouane-dev75/dev-environment-setup.git
 cd dev-environment-setup
 
-# Run the setup
+# Run the full setup
 ansible-playbook site.yml --ask-become-pass
+
+# Or run only specific components using tags
+# Install only terminal tools (tmux, zsh)
+ansible-playbook site.yml --tags "terminal" --ask-become-pass
+
+# Install only development tools (vim, pnpm)
+ansible-playbook site.yml --tags "tools" --ask-become-pass
+
+# Install only window manager (i3)
+ansible-playbook site.yml --tags "wm" --ask-become-pass
 ```
 
 That's it! Your system will be transformed into a fully-configured development environment.
