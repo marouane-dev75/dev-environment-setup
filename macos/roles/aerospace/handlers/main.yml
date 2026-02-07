@@ -1,0 +1,12 @@
+---
+- name: aerospace config backed up
+  debug:
+    msg: "Existing AeroSpace config has been backed up"
+
+- name: aerospace config updated
+  debug:
+    msg: "AeroSpace configuration has been updated. Reload with Cmd+Shift+r to apply changes"
+
+- name: restart dock
+  command: killall Dock
+  ignore_errors: true

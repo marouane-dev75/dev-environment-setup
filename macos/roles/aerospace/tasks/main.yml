@@ -1,0 +1,108 @@
+---
+- name: Install AeroSpace window manager via Homebrew
+  homebrew_cask:
+    name: nikitabobko/tap/aerospace
+    state: present
+  when: ansible_os_family == "Darwin"
+
+- name: Verify AeroSpace installation
+  command: aerospace --version
+  register: aerospace_version
+  changed_when: false
+  failed_when: aerospace_version.rc != 0
+
+- name: Display AeroSpace version
+  debug:
+    msg: "AeroSpace window manager installed successfully: {{ aerospace_version.stdout }}"
+
+- name: Display AeroSpace usage note
+  debug:
+    msg: "Note: AeroSpace is now installed. Use the configured keybindings to manage windows."
+
+- name: Install Ghostty terminal via Homebrew
+  homebrew_cask:
+    name: ghostty
+    state: present
+  when: ansible_os_family == "Darwin"
+
+- name: Verify Ghostty installation
+  stat:
+    path: /Applications/Ghostty.app
+  register: ghostty_app
+
+- name: Display Ghostty installation status
+  debug:
+    msg: "Ghostty terminal installed successfully at /Applications/Ghostty.app"
+  when: ghostty_app.stat.exists
+
+- name: Create AeroSpace config directory
+  file:
+    path: "{{ ansible_env.HOME }}/.config/aerospace"
+    state: directory
+    mode: '0755'
+
+- name: Check if existing AeroSpace config exists
+  stat:
+    path: "{{ ansible_env.HOME }}/.config/aerospace/aerospace.toml"
+    checksum_algorithm: sha256
+  register: existing_aerospace_config
+
+- name: Get source AeroSpace config checksum
+  stat:
+    path: "{{ role_path }}/files/aerospace.toml"
+    checksum_algorithm: sha256
+  register: source_aerospace_config
+  delegate_to: localhost
+
+- name: Backup existing AeroSpace config
+  copy:
+    src: "{{ ansible_env.HOME }}/.config/aerospace/aerospace.toml"
+    dest: "{{ ansible_env.HOME }}/.config/aerospace/aerospace.toml.backup.{{ ansible_date_time.epoch }}"
+    remote_src: yes
+  when: 
+    - existing_aerospace_config.stat.exists
+    - existing_aerospace_config.stat.checksum != source_aerospace_config.stat.checksum
+  notify: aerospace config backed up
+
+- name: Deploy default AeroSpace configuration
+  copy:
+    src: aerospace.toml
+    dest: "{{ ansible_env.HOME }}/.config/aerospace/aerospace.toml"
+    mode: '0644'
+    backup: no
+  when: 
+    - not existing_aerospace_config.stat.exists or existing_aerospace_config.stat.checksum != source_aerospace_config.stat.checksum
+  notify: aerospace config updated
+
+- name: Display AeroSpace config deployment message
+  debug:
+    msg: "AeroSpace configuration deployed to {{ ansible_env.HOME }}/.config/aerospace/aerospace.toml"
+  when: 
+    - not existing_aerospace_config.stat.exists or existing_aerospace_config.stat.checksum != source_aerospace_config.stat.checksum
+
+- name: Enable Dock auto-hide
+  community.general.osx_defaults:
+    domain: com.apple.dock
+    key: autohide
+    type: bool
+    value: true
+    state: present
+  notify: restart dock
+
+- name: Set Dock auto-hide delay to 0 (instant)
+  community.general.osx_defaults:
+    domain: com.apple.dock
+    key: autohide-delay
+    type: float
+    value: 0
+    state: present
+  notify: restart dock
+
+- name: Set Dock auto-hide animation duration
+  community.general.osx_defaults:
+    domain: com.apple.dock
+    key: autohide-time-modifier
+    type: float
+    value: 0.5
+    state: present
+  notify: restart dock

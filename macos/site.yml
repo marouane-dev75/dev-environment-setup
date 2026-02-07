@@ -17,6 +17,7 @@
     - { role: homebrew, tags: ['homebrew', 'setup'] }
     - { role: common-tools, tags: ['common-tools', 'tools'] }
     - { role: gui-apps, tags: ['gui-apps', 'apps'] }
+    - { role: aerospace, tags: ['aerospace', 'wm'] }
     - { role: vim, tags: ['vim', 'editor'] }
     - { role: tmux, tags: ['tmux', 'terminal'] }
     - { role: zsh, tags: ['zsh', 'terminal'] }
