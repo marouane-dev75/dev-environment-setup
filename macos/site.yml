@@ -15,6 +15,7 @@
 
   roles:
     - { role: homebrew, tags: ['homebrew', 'setup'] }
+    - { role: common-tools, tags: ['common-tools', 'tools'] }
     - { role: zsh, tags: ['zsh', 'terminal'] }
 
   post_tasks:
