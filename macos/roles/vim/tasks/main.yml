@@ -1,0 +1,91 @@
+---
+- name: Install vim via Homebrew
+  homebrew:
+    name:
+      - vim
+    state: present
+    update_homebrew: no
+
+- name: Verify vim installation
+  command: vim --version
+  register: vim_version
+  changed_when: false
+  failed_when: vim_version.rc != 0
+
+- name: Display vim version
+  debug:
+    msg: "Vim installed successfully: {{ vim_version.stdout_lines[0] }}"
+
+- name: Check vim clipboard support
+  command: vim --version
+  register: vim_clipboard_check
+  changed_when: false
+  failed_when: false
+
+- name: Verify clipboard support
+  debug:
+    msg: "Clipboard support: {{ 'ENABLED' if '+clipboard' in vim_clipboard_check.stdout else 'DISABLED - clipboard functionality may not work' }}"
+
+- name: Create vim directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - "{{ ansible_env.HOME }}/.vim"
+    - "{{ ansible_env.HOME }}/.vim/autoload"
+    - "{{ ansible_env.HOME }}/.vim/backup"
+    - "{{ ansible_env.HOME }}/.vim/swap"
+    - "{{ ansible_env.HOME }}/.vim/undo"
+    - "{{ ansible_env.HOME }}/.vim/plugged"
+
+- name: Check if existing vimrc exists
+  stat:
+    path: "{{ ansible_env.HOME }}/.vimrc"
+    checksum_algorithm: sha256
+  register: existing_vimrc
+
+- name: Get source vimrc checksum
+  stat:
+    path: "{{ role_path }}/files/vimrc"
+    checksum_algorithm: sha256
+  register: source_vimrc
+  delegate_to: localhost
+
+- name: Compare vimrc files
+  set_fact:
+    vimrc_needs_update: "{{ not existing_vimrc.stat.exists or existing_vimrc.stat.checksum != source_vimrc.stat.checksum }}"
+
+- name: Backup existing vimrc
+  copy:
+    src: "{{ ansible_env.HOME }}/.vimrc"
+    dest: "{{ ansible_env.HOME }}/.vimrc.backup.{{ ansible_date_time.epoch }}"
+    remote_src: yes
+  when: existing_vimrc.stat.exists and vimrc_needs_update
+  notify: vimrc config backed up
+
+- name: Deploy vim configuration
+  copy:
+    src: vimrc
+    dest: "{{ ansible_env.HOME }}/.vimrc"
+    mode: '0644'
+  when: vimrc_needs_update
+  notify: vimrc config updated
+
+- name: Install vim-plug plugin manager
+  get_url:
+    url: https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+    dest: "{{ ansible_env.HOME }}/.vim/autoload/plug.vim"
+    mode: '0644'
+  when: vimrc_needs_update
+  register: vim_plug_installed
+
+- name: Install vim plugins
+  shell: vim +PlugInstall +qall
+  when: vimrc_needs_update and vim_plug_installed.changed
+  register: plugin_install_result
+  changed_when: plugin_install_result.rc == 0
+
+- name: Display vim configuration deployment message
+  debug:
+    msg: "Vim configuration deployed to {{ ansible_env.HOME }}/.vimrc with NERDTree and plugins"
