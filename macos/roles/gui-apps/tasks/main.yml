@@ -1,0 +1,46 @@
+---
+- name: Install GUI applications via Homebrew Cask
+  homebrew_cask:
+    name:
+      - visual-studio-code
+      - inkscape
+    state: present
+    update_homebrew: no
+
+- name: Verify Visual Studio Code installation
+  command: /usr/local/bin/code --version
+  register: vscode_version
+  changed_when: false
+  failed_when: false
+
+- name: Verify Visual Studio Code installation (Apple Silicon)
+  command: /opt/homebrew/bin/code --version
+  register: vscode_version_arm
+  changed_when: false
+  failed_when: false
+  when: vscode_version.rc != 0
+
+- name: Set VSCode version fact
+  set_fact:
+    vscode_installed_version: "{{ vscode_version.stdout_lines[0] if vscode_version.rc == 0 else vscode_version_arm.stdout_lines[0] }}"
+  when: vscode_version.rc == 0 or vscode_version_arm.rc == 0
+
+- name: Display Visual Studio Code version
+  debug:
+    msg: "Visual Studio Code installed successfully: {{ vscode_installed_version }}"
+  when: vscode_installed_version is defined
+
+- name: Verify Inkscape installation
+  command: /Applications/Inkscape.app/Contents/MacOS/inkscape --version
+  register: inkscape_version
+  changed_when: false
+  failed_when: false
+
+- name: Display Inkscape version
+  debug:
+    msg: "Inkscape installed successfully: {{ inkscape_version.stdout_lines[0] }}"
+  when: inkscape_version.rc == 0
+
+- name: Display GUI applications installation summary
+  debug:
+    msg: "GUI applications (Visual Studio Code, Inkscape) have been installed successfully!"

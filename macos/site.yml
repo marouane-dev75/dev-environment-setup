@@ -16,6 +16,7 @@
   roles:
     - { role: homebrew, tags: ['homebrew', 'setup'] }
     - { role: common-tools, tags: ['common-tools', 'tools'] }
+    - { role: gui-apps, tags: ['gui-apps', 'apps'] }
     - { role: vim, tags: ['vim', 'editor'] }
     - { role: zsh, tags: ['zsh', 'terminal'] }
 
