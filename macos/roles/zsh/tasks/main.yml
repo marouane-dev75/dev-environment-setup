@@ -1,0 +1,103 @@
+---
+- name: Check if zsh is already installed
+  command: which zsh
+  register: zsh_check
+  changed_when: false
+  failed_when: false
+
+- name: Install zsh via Homebrew
+  homebrew:
+    name: zsh
+    state: present
+  when: zsh_check.rc != 0
+
+- name: Verify zsh installation
+  command: zsh --version
+  register: zsh_version
+  changed_when: false
+  failed_when: zsh_version.rc != 0
+
+- name: Display zsh version
+  debug:
+    msg: "Zsh installed successfully: {{ zsh_version.stdout }}"
+
+- name: Check if oh-my-zsh is already installed
+  stat:
+    path: "{{ ansible_env.HOME }}/.oh-my-zsh"
+  register: ohmyzsh_check
+
+- name: Install oh-my-zsh
+  shell: |
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+  when: not ohmyzsh_check.stat.exists
+  register: ohmyzsh_install
+
+- name: Display oh-my-zsh installation status
+  debug:
+    msg: "oh-my-zsh installed successfully!"
+  when: ohmyzsh_install.changed
+
+- name: Check if existing zshrc exists
+  stat:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+    checksum_algorithm: sha256
+  register: existing_zshrc
+
+- name: Get source zshrc checksum
+  stat:
+    path: "{{ role_path }}/files/zshrc"
+    checksum_algorithm: sha256
+  register: source_zshrc
+  delegate_to: localhost
+
+- name: Backup existing zshrc
+  copy:
+    src: "{{ ansible_env.HOME }}/.zshrc"
+    dest: "{{ ansible_env.HOME }}/.zshrc.backup.{{ ansible_date_time.epoch }}"
+    remote_src: yes
+  when: 
+    - existing_zshrc.stat.exists
+    - existing_zshrc.stat.checksum != source_zshrc.stat.checksum
+  notify: zshrc backed up
+
+- name: Deploy custom zshrc configuration
+  copy:
+    src: zshrc
+    dest: "{{ ansible_env.HOME }}/.zshrc"
+    mode: '0644'
+    backup: no
+  when: 
+    - not existing_zshrc.stat.exists or existing_zshrc.stat.checksum != source_zshrc.stat.checksum
+  notify: zshrc updated
+
+- name: Display zshrc deployment message
+  debug:
+    msg: "Zsh configuration deployed to {{ ansible_env.HOME }}/.zshrc"
+  when: 
+    - not existing_zshrc.stat.exists or existing_zshrc.stat.checksum != source_zshrc.stat.checksum
+
+- name: Get current shell
+  command: echo $SHELL
+  register: current_shell
+  changed_when: false
+
+- name: Get zsh path
+  command: which zsh
+  register: zsh_path
+  changed_when: false
+
+- name: Change default shell to zsh
+  user:
+    name: "{{ ansible_env.USER }}"
+    shell: "{{ zsh_path.stdout }}"
+  become: yes
+  when: current_shell.stdout != zsh_path.stdout
+
+- name: Display shell change message
+  debug:
+    msg: "Default shell changed to zsh. Please log out and log back in for changes to take effect."
+  when: current_shell.stdout != zsh_path.stdout
+
+- name: Display zsh installation summary
+  debug:
+    msg: "Zsh and oh-my-zsh have been installed and configured successfully!"

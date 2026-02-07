@@ -1,0 +1,36 @@
+# Path to your oh-my-zsh installation.
+export ZSH="$HOME/.oh-my-zsh"
+
+# Set name of the theme to load
+ZSH_THEME="robbyrussell"
+
+# Which plugins would you like to load?
+plugins=(
+  fzf zsh-autosuggestions zsh-syntax-highlighting zsh-bat
+)
+
+source $ZSH/oh-my-zsh.sh
+
+# User configuration
+
+# Custom aliases
+alias ll='ls -lah'
+alias la='ls -A'
+alias l='ls -CF'
+
+# Git aliases
+alias gc="git commit -m "
+alias gcl="git clean -f . && git status"
+alias gap="git add -p"
+alias gA="git add -A"
+alias gu="git add -u && git status"
+alias gr="git checkout ."
+alias gst="git status"
+alias gd="clear && git diff"
+alias gb="git branch"
+alias gl="git log -n3"
+
+# Source additional configurations
+[ -f ~/.config/shell/nvm.sh ] && source ~/.config/shell/nvm.sh
+
+# Add any custom functions or environment variables below

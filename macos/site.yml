@@ -1,0 +1,23 @@
+---
+- name: Setup macOS Development Environment
+  hosts: localhost
+  gather_facts: yes
+  
+  pre_tasks:
+    - name: Verify running on macOS
+      fail:
+        msg: "This playbook is designed for macOS only"
+      when: ansible_os_family != "Darwin"
+    
+    - name: Display macOS version
+      debug:
+        msg: "Setting up development environment on macOS {{ ansible_distribution_version }}"
+
+  roles:
+    - { role: homebrew, tags: ['homebrew', 'setup'] }
+    - { role: zsh, tags: ['zsh', 'terminal'] }
+
+  post_tasks:
+    - name: Display completion message
+      debug:
+        msg: "macOS development environment setup completed successfully!"

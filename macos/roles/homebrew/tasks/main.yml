@@ -1,0 +1,63 @@
+---
+- name: Check if Homebrew is already installed (Apple Silicon)
+  stat:
+    path: /opt/homebrew/bin/brew
+  register: homebrew_check_arm
+
+- name: Check if Homebrew is already installed (Intel)
+  stat:
+    path: /usr/local/bin/brew
+  register: homebrew_check_intel
+
+- name: Set Homebrew installed fact
+  set_fact:
+    homebrew_installed: "{{ homebrew_check_arm.stat.exists or homebrew_check_intel.stat.exists }}"
+
+- name: Install Homebrew
+  shell: |
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  when: not homebrew_installed
+  environment:
+    NONINTERACTIVE: "1"
+
+- name: Ensure Homebrew is in PATH for Apple Silicon
+  lineinfile:
+    path: "{{ ansible_env.HOME }}/.zprofile"
+    line: 'eval "$(/opt/homebrew/bin/brew shellenv)"'
+    create: yes
+    mode: '0644'
+  when: ansible_machine == "arm64"
+
+- name: Ensure Homebrew is in PATH for Intel
+  lineinfile:
+    path: "{{ ansible_env.HOME }}/.zprofile"
+    line: 'eval "$(/usr/local/bin/brew shellenv)"'
+    create: yes
+    mode: '0644'
+  when: ansible_machine == "x86_64"
+
+- name: Source Homebrew environment for current session
+  shell: |
+    if [ -f /opt/homebrew/bin/brew ]; then
+      eval "$(/opt/homebrew/bin/brew shellenv)"
+    elif [ -f /usr/local/bin/brew ]; then
+      eval "$(/usr/local/bin/brew shellenv)"
+    fi
+    brew --version
+  args:
+    executable: /bin/zsh
+  register: brew_version
+  changed_when: false
+
+- name: Display Homebrew version
+  debug:
+    msg: "Homebrew installed successfully: {{ brew_version.stdout_lines[0] }}"
+
+- name: Update Homebrew
+  homebrew:
+    update_homebrew: yes
+  when: homebrew_installed
+
+- name: Display Homebrew installation summary
+  debug:
+    msg: "Homebrew has been installed and configured successfully!"

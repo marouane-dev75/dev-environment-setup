@@ -1,27 +1,25 @@
 ---
-- name: Setup Development Environment
+- name: Display OS Information
   hosts: localhost
   gather_facts: yes
-  
-  pre_tasks:
-    - name: Update apt cache
-      apt:
-        update_cache: yes
-        cache_valid_time: 3600
-      become: yes
-      when: ansible_os_family == "Debian"
-
-  roles:
-    - { role: common-tools, tags: ['common-tools', 'tools'] }
-    - { role: snap-apps, tags: ['snapd', 'tools'] }
-    - { role: vim, tags: ['vim', 'tools'] }
-    - { role: tmux, tags: ['tmux', 'terminal'] }
-    - { role: zsh, tags: ['zsh', 'terminal'] }
-    - { role: i3, tags: ['i3', 'wm'] }
-    - { role: pnpm, tags: ['pnpm', 'nodejs'] }
-    - { role: fonts, tags: ['fonts', 'system'] }
-
-  post_tasks:
-    - name: Display completion message
+  tasks:
+    - name: Display detected operating system
       debug:
-        msg: "Development environment setup completed successfully!"
+        msg: "Detected OS: {{ ansible_os_family }} ({{ ansible_distribution }} {{ ansible_distribution_version }})"
+
+- name: Run Linux setup
+  import_playbook: linux/site.yml
+  when: ansible_os_family == "Debian"
+
+- name: Run macOS setup
+  import_playbook: macos/site.yml
+  when: ansible_os_family == "Darwin"
+
+- name: Check for unsupported OS
+  hosts: localhost
+  gather_facts: yes
+  tasks:
+    - name: Unsupported OS
+      fail:
+        msg: "This playbook only supports Debian/Ubuntu Linux and macOS. Detected: {{ ansible_os_family }}"
+      when: ansible_os_family not in ["Debian", "Darwin"]

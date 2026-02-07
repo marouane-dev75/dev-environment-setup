@@ -1,0 +1,8 @@
+---
+- name: zshrc backed up
+  debug:
+    msg: "Existing zshrc has been backed up"
+
+- name: zshrc updated
+  debug:
+    msg: "Zsh configuration has been updated"
