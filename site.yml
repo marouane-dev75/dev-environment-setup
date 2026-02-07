@@ -14,12 +14,3 @@
 - name: Run macOS setup
   import_playbook: macos/site.yml
   when: ansible_os_family == "Darwin"
-
-- name: Check for unsupported OS
-  hosts: localhost
-  gather_facts: yes
-  tasks:
-    - name: Unsupported OS
-      fail:
-        msg: "This playbook only supports Debian/Ubuntu Linux and macOS. Detected: {{ ansible_os_family }}"
-      when: ansible_os_family not in ["Debian", "Darwin"]

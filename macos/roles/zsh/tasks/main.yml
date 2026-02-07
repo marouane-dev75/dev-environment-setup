@@ -37,6 +37,48 @@
     msg: "oh-my-zsh installed successfully!"
   when: ohmyzsh_install.changed
 
+- name: Check if zsh-autosuggestions plugin is installed
+  stat:
+    path: "{{ ansible_env.HOME }}/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
+  register: zsh_autosuggestions_check
+
+- name: Install zsh-autosuggestions plugin
+  git:
+    repo: https://github.com/zsh-users/zsh-autosuggestions
+    dest: "{{ ansible_env.HOME }}/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
+    depth: 1
+  when: not zsh_autosuggestions_check.stat.exists
+
+- name: Check if zsh-syntax-highlighting plugin is installed
+  stat:
+    path: "{{ ansible_env.HOME }}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting"
+  register: zsh_syntax_highlighting_check
+
+- name: Install zsh-syntax-highlighting plugin
+  git:
+    repo: https://github.com/zsh-users/zsh-syntax-highlighting
+    dest: "{{ ansible_env.HOME }}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting"
+    depth: 1
+  when: not zsh_syntax_highlighting_check.stat.exists
+
+- name: Check if fzf is already installed
+  command: which fzf
+  register: fzf_check
+  changed_when: false
+  failed_when: false
+
+- name: Install fzf via Homebrew
+  homebrew:
+    name: fzf
+    state: present
+  when: fzf_check.rc != 0
+
+- name: Get fzf installation path
+  command: brew --prefix fzf
+  register: fzf_path
+  changed_when: false
+  failed_when: false
+
 - name: Check if existing zshrc exists
   stat:
     path: "{{ ansible_env.HOME }}/.zshrc"
