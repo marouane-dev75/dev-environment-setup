@@ -44,9 +44,11 @@ ansible-playbook site.yml --ask-become-pass
 
 ### macOS
 - **Package Manager**: Homebrew
-- **Terminal**: zsh with oh-my-zsh
-
-> **Note**: macOS support is minimal for now. More tools will be added in future updates.
+- **Terminal**: zsh with oh-my-zsh, tmux, vim
+- **Window Manager**: AeroSpace (tiling window manager)
+- **Status Bar**: SwiftBar with custom plugins (Pomodoro timer, CPU/Memory/Network monitoring)
+- **GUI Apps**: Various productivity and development tools
+- **Development Tools**: Common CLI tools (curl, wget, git, etc.)
 
 ## 🎯 Platform-Specific Usage
 
@@ -81,6 +83,9 @@ ansible-playbook macos/site.yml --tags "zsh" --ask-become-pass
 
 # Install only Homebrew
 ansible-playbook macos/site.yml --tags "homebrew" --ask-become-pass
+
+# Install only status bar monitoring
+ansible-playbook macos/site.yml --tags "status-bar" --ask-become-pass
 ```
 
 ## 🏗️ Project Structure
@@ -138,6 +143,12 @@ dev-environment-setup/
 ### macOS
 - `homebrew`, `setup` - Homebrew package manager
 - `zsh`, `terminal` - Zsh shell
+- `status-bar` - SwiftBar status bar monitoring
+- `tmux`, `terminal` - Terminal multiplexer
+- `vim` - Vim editor
+- `aerospace` - AeroSpace window manager
+- `gui-apps` - GUI applications
+- `common-tools`, `tools` - Common development tools
 
 ## 🎯 Roadmap
 

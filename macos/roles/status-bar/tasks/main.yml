@@ -1,0 +1,58 @@
+---
+# Install and configure status bar monitoring for macOS using SwiftBar
+
+- name: Install SwiftBar via Homebrew
+  community.general.homebrew_cask:
+    name: swiftbar
+    state: present
+
+- name: Ensure SwiftBar base directory exists
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/swiftbar"
+    state: directory
+    mode: '0755'
+
+- name: Ensure SwiftBar plugins directory exists
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/swiftbar/plugins"
+    state: directory
+    mode: '0755'
+
+- name: Ensure sounds directory exists
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/swiftbar/sounds"
+    state: directory
+    mode: '0755'
+
+- name: Copy monitoring scripts to SwiftBar plugins directory
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ ansible_env.HOME }}/swiftbar/plugins/{{ item }}"
+    mode: '0755'
+  loop:
+    - 1-pomodoro.1s.sh
+    - 2-cpu.5s.sh
+    - 3-memory.5s.sh
+    - 4-network.60s.sh
+
+- name: Copy sound files
+  ansible.builtin.copy:
+    src: "sounds/{{ item }}"
+    dest: "{{ ansible_env.HOME }}/swiftbar/sounds/{{ item }}"
+    mode: '0644'
+  loop:
+    - pomodoro-end.mp3
+    - break-end.mp3
+
+- name: Display SwiftBar setup instructions
+  ansible.builtin.debug:
+    msg:
+      - "SwiftBar has been installed and configured!"
+      - "Please open SwiftBar from Applications and set the plugin folder to:"
+      - "{{ ansible_env.HOME }}/swiftbar/plugins"
+      - ""
+      - "Status bar plugins installed:"
+      - "  - Pomodoro Timer (updates every 1 second)"
+      - "  - CPU Monitor (updates every 5 seconds)"
+      - "  - Memory Monitor (updates every 5 seconds)"
+      - "  - Network/VPN Monitor (updates every 60 seconds)"
