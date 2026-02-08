@@ -1,7 +1,30 @@
 #!/bin/bash
-# SwiftBar Memory Monitor
+# SwiftBar System Monitor (CPU + Memory)
 # <swiftbar.refreshOnOpen>true</swiftbar.refreshOnOpen>
 # <swiftbar.hideRunInTerminal>true</swiftbar.hideRunInTerminal>
+
+# ============================================
+# CPU MONITORING
+# ============================================
+
+# Get CPU usage using top command
+CPU_USAGE=$(top -l 2 -n 0 -F | grep "CPU usage" | tail -1 | awk '{print $3}' | sed 's/%//')
+
+# Round to integer
+CPU_INT=$(printf "%.0f" "$CPU_USAGE")
+
+# Choose icon based on usage
+if [ "$CPU_INT" -lt 30 ]; then
+    CPU_ICON="🟢"
+elif [ "$CPU_INT" -lt 70 ]; then
+    CPU_ICON="🟡"
+else
+    CPU_ICON="🔴"
+fi
+
+# ============================================
+# MEMORY MONITORING
+# ============================================
 
 # Get memory statistics
 PAGE_SIZE=$(pagesize)
@@ -34,23 +57,42 @@ MEM_PERCENT=$(awk "BEGIN {printf \"%.0f\", ($USED_MEM / $TOTAL_MEM) * 100}")
 
 # Choose icon based on usage
 if [ "$MEM_PERCENT" -lt 50 ]; then
-    ICON="🟢"
+    MEM_ICON="🟢"
 elif [ "$MEM_PERCENT" -lt 80 ]; then
-    ICON="🟡"
+    MEM_ICON="🟡"
 else
-    ICON="🔴"
+    MEM_ICON="🔴"
 fi
 
-# Display in menu bar
-printf "%s MEM %02d%%\n" "$ICON" "$MEM_PERCENT"
+# ============================================
+# DISPLAY IN MENU BAR
+# ============================================
+
+printf "%s CPU %02d%% • %s MEM %02d%%\n" "$CPU_ICON" "$CPU_INT" "$MEM_ICON" "$MEM_PERCENT"
 echo "---"
 
-# Detailed information
+# ============================================
+# CPU DETAILS DROPDOWN
+# ============================================
+
+echo "💻 CPU USAGE"
+# Get detailed CPU info
+CPU_INFO=$(top -l 1 -n 0 -F | grep "CPU usage")
+echo "$CPU_INFO"
+echo ""
+echo "Top CPU Processes:"
+top -l 1 -n 5 -o cpu -stats pid,command,cpu | tail -n +12 | head -5
+
+echo "---"
+
+# ============================================
+# MEMORY DETAILS DROPDOWN
+# ============================================
+
+echo "🧠 MEMORY USAGE"
 echo "Memory Usage: ${MEM_PERCENT}%"
 printf "App Memory: %.2f GB / %.0f GB\n" "$USED_MEM" "$TOTAL_MEM"
 printf "Available: %.2f GB\n" "$FREE_MEM"
-echo "---"
-
-# Top memory consuming processes
+echo ""
 echo "Top Memory Processes:"
 top -l 1 -n 5 -o mem -stats pid,command,mem | tail -n +12 | head -n 5
