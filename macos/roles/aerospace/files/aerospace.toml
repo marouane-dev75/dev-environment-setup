@@ -95,7 +95,6 @@ cmd-7 = 'workspace 7'
 cmd-8 = 'workspace 8'
 cmd-9 = 'workspace 9'
 cmd-0 = 'workspace 10'
-cmd-g = 'workspace git'
 
 # See: https://nikitabobko.github.io/AeroSpace/commands#move-node-to-workspace
 cmd-shift-1 = 'move-node-to-workspace 1'
@@ -108,7 +107,6 @@ cmd-shift-7 = 'move-node-to-workspace 7'
 cmd-shift-8 = 'move-node-to-workspace 8'
 cmd-shift-9 = 'move-node-to-workspace 9'
 cmd-shift-0 = 'move-node-to-workspace 10'
-cmd-shift-g = 'move-node-to-workspace git'
 
 # See: https://nikitabobko.github.io/AeroSpace/commands#mode
 cmd-shift-semicolon = 'mode service'
@@ -121,11 +119,6 @@ cmd-shift-r = 'reload-config'
 
 # Toggle floating/tiling
 cmd-shift-space = 'layout floating tiling'
-
-# Layout modes
-cmd-shift-h = 'layout tiles horizontal'  # split horizontally
-cmd-shift-v = 'layout tiles vertical'    # split vertically
-cmd-shift-e = 'layout tiles horizontal vertical'  # toggle split
 
 # 'service' binding mode declaration.
 # See: https://nikitabobko.github.io/AeroSpace/guide#binding-modes
