@@ -61,6 +61,10 @@ outer.right =      10
 # You can uncomment the following lines to open up terminal with cmd + enter shortcut (like in i3)
 cmd-enter = 'exec-and-forget open -n /Applications/Ghostty.app'
 
+# Pomodoro controls
+cmd-alt-s = 'exec-and-forget /Users/marouane/swiftbar/plugins/1-pomodoro.1s.sh start'
+cmd-alt-r = 'exec-and-forget /Users/marouane/swiftbar/plugins/1-pomodoro.1s.sh reset'
+
 # See: https://nikitabobko.github.io/AeroSpace/commands#layout
 cmd-slash = 'layout tiles horizontal vertical'
 

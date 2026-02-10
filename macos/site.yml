@@ -19,6 +19,7 @@
     - { role: gui-apps, tags: ['gui-apps', 'apps'] }
     - { role: aerospace, tags: ['aerospace', 'wm'] }
     - { role: status-bar, tags: ['status-bar', 'monitoring', 'productivity'] }
+    - { role: ghostty, tags: ['ghostty', 'terminal'] }
     - { role: vim, tags: ['vim', 'editor'] }
     - { role: tmux, tags: ['tmux', 'terminal'] }
     - { role: zsh, tags: ['zsh', 'terminal'] }

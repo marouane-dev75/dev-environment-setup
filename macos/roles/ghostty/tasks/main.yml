@@ -1,0 +1,60 @@
+---
+- name: Install Ghostty
+  homebrew_cask:
+    name: ghostty
+    state: present
+    update_homebrew: no
+
+- name: Verify Ghostty installation
+  stat:
+    path: /Applications/Ghostty.app
+  register: ghostty_app
+  failed_when: not ghostty_app.stat.exists
+
+- name: Display Ghostty installation status
+  debug:
+    msg: "Ghostty installed successfully at /Applications/Ghostty.app"
+
+- name: Ensure Ghostty config directory exists
+  file:
+    path: "{{ ansible_env.HOME }}/.config/ghostty"
+    state: directory
+    mode: '0755'
+
+- name: Check if existing Ghostty config exists
+  stat:
+    path: "{{ ansible_env.HOME }}/.config/ghostty/config"
+    checksum_algorithm: sha256
+  register: existing_ghostty_config
+
+- name: Get source Ghostty config checksum
+  stat:
+    path: "{{ role_path }}/files/config"
+    checksum_algorithm: sha256
+  register: source_ghostty_config
+  delegate_to: localhost
+
+- name: Compare Ghostty config files
+  set_fact:
+    ghostty_config_needs_update: "{{ not existing_ghostty_config.stat.exists or existing_ghostty_config.stat.checksum != source_ghostty_config.stat.checksum }}"
+
+- name: Backup existing Ghostty config
+  copy:
+    src: "{{ ansible_env.HOME }}/.config/ghostty/config"
+    dest: "{{ ansible_env.HOME }}/.config/ghostty/config.backup.{{ ansible_date_time.epoch }}"
+    remote_src: yes
+  when: existing_ghostty_config.stat.exists and ghostty_config_needs_update
+  notify: ghostty config backed up
+
+- name: Deploy Ghostty configuration
+  copy:
+    src: config
+    dest: "{{ ansible_env.HOME }}/.config/ghostty/config"
+    mode: '0644'
+    backup: no
+  when: ghostty_config_needs_update
+  notify: ghostty config updated
+
+- name: Display Ghostty config deployment message
+  debug:
+    msg: "Ghostty configuration deployed to {{ ansible_env.HOME }}/.config/ghostty/config"

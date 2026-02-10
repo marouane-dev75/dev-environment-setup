@@ -1,0 +1,8 @@
+---
+- name: ghostty config backed up
+  debug:
+    msg: "Existing Ghostty configuration has been backed up"
+
+- name: ghostty config updated
+  debug:
+    msg: "Ghostty configuration has been updated"

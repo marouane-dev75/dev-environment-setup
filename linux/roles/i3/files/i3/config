@@ -185,3 +185,7 @@ exec --no-startup-id xset s off -dpms
 bindsym Print exec --no-startup-id scrot
 bindsym $mod+Print exec --no-startup-id scrot -s
 bindsym $mod+p exec --no-startup-id maim --select "/home/$USER/Pictures/$(date).png"
+
+# Pomodoro controls
+bindsym $mod+Mod1+s exec --no-startup-id echo "1" > /tmp/pomodoro_work && echo "0" > /tmp/pomodoro_break && date +%s > /tmp/pomodoro_start
+bindsym $mod+Mod1+r exec --no-startup-id echo "0" > /tmp/pomodoro_work && echo "0" > /tmp/pomodoro_break && echo "0" > /tmp/pomodoro_count
