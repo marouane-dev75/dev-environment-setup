@@ -1,0 +1,108 @@
+---
+- name: Check if Karabiner-Elements is installed
+  stat:
+    path: "/Applications/Karabiner-Elements.app"
+  register: karabiner_app
+
+- name: Display manual installation instructions
+  debug:
+    msg: |
+      ============================================
+      KARABINER-ELEMENTS MANUAL INSTALLATION
+      ============================================
+      
+      Karabiner-Elements must be installed manually.
+      
+      Please follow these steps:
+      
+      1. Download Karabiner-Elements from:
+         https://karabiner-elements.pqrs.org/
+      
+      2. Install the application by dragging it to /Applications
+      
+      3. Launch Karabiner-Elements and grant necessary permissions
+         (System Settings > Privacy & Security > Input Monitoring)
+      
+      4. Run this ansible playbook again after installation
+      
+      ============================================
+  when: not karabiner_app.stat.exists
+
+- name: Create Karabiner config directory
+  file:
+    path: "{{ ansible_env.HOME }}/.config/karabiner"
+    state: directory
+    mode: '0755'
+
+- name: Check if existing Karabiner config exists
+  stat:
+    path: "{{ ansible_env.HOME }}/.config/karabiner/karabiner.json"
+    checksum_algorithm: sha256
+  register: existing_karabiner_config
+
+- name: Get source Karabiner config checksum
+  stat:
+    path: "{{ role_path }}/files/karabiner.json"
+    checksum_algorithm: sha256
+  register: source_karabiner_config
+  delegate_to: localhost
+
+- name: Backup existing Karabiner config
+  copy:
+    src: "{{ ansible_env.HOME }}/.config/karabiner/karabiner.json"
+    dest: "{{ ansible_env.HOME }}/.config/karabiner/karabiner.json.backup.{{ ansible_date_time.epoch }}"
+    remote_src: yes
+  when:
+    - existing_karabiner_config.stat.exists
+    - existing_karabiner_config.stat.checksum != source_karabiner_config.stat.checksum
+  notify: karabiner config backed up
+
+- name: Deploy Karabiner configuration
+  copy:
+    src: karabiner.json
+    dest: "{{ ansible_env.HOME }}/.config/karabiner/karabiner.json"
+    mode: '0644'
+    backup: no
+  when:
+    - not existing_karabiner_config.stat.exists or existing_karabiner_config.stat.checksum != source_karabiner_config.stat.checksum
+  notify: karabiner config updated
+
+- name: Display Karabiner config deployment message
+  debug:
+    msg: "Karabiner configuration deployed to {{ ansible_env.HOME }}/.config/karabiner/karabiner.json"
+  when:
+    - not existing_karabiner_config.stat.exists or existing_karabiner_config.stat.checksum != source_karabiner_config.stat.checksum
+
+- name: Display completion message
+  debug:
+    msg: |
+      ============================================
+      KARABINER CONFIGURATION COMPLETE
+      ============================================
+      
+      Azerty Linux-style keyboard mappings configured:
+      
+      Home/End Keys:
+        - Home: Move to start of line
+        - End: Move to end of line
+        - Ctrl+Home: Move to top of document
+        - Ctrl+End: Move to bottom of document
+        - Shift+Home/End: Select to start/end of line
+      
+      Standard Shortcuts (Ctrl → Cmd):
+        - Ctrl+C/V/X: Copy/Paste/Cut
+        - Ctrl+A: Select All
+        - Ctrl+Z: Undo, Ctrl+Shift+Z: Redo
+        - Ctrl+S: Save, Ctrl+F: Find
+        - Ctrl+W: Close Tab, Ctrl+T: New Tab
+        - Ctrl+N: New Window, Ctrl+O: Open
+        - Ctrl+P: Print, Ctrl+Q: Quit
+      
+      Terminal-specific:
+        - Ctrl+C: Send interrupt (SIGINT) - unchanged
+        - Ctrl+Shift+C/V/X: Copy/Paste/Cut in terminal
+      
+      ============================================
+      IMPORTANT: Restart Karabiner-Elements for changes to take effect
+      ============================================
+  when: karabiner_app.stat.exists

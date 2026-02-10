@@ -1,0 +1,8 @@
+---
+- name: karabiner config backed up
+  debug:
+    msg: "Existing Karabiner configuration backed up"
+
+- name: karabiner config updated
+  debug:
+    msg: "Karabiner configuration updated. Please restart Karabiner-Elements for changes to take effect."
