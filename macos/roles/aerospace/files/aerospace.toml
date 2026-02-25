@@ -64,7 +64,7 @@ cmd-enter = 'exec-and-forget open -n /Applications/Ghostty.app'
 # i3-like split direction controls
 # Sets the split direction for the NEXT window that opens
 cmd-h = 'split horizontal'  # Next window opens to the right (horizontal split)
-cmd-v = 'split vertical'    # Next window opens below (vertical split)
+cmd-shift-h = 'split vertical'    # Next window opens below (vertical split)
 
 # Pomodoro controls
 cmd-alt-s = 'exec-and-forget /Users/marouane/swiftbar/plugins/1-pomodoro.1s.sh start'

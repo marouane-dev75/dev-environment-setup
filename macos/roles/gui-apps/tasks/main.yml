@@ -4,6 +4,7 @@
     name:
       - visual-studio-code
       - inkscape
+      - middleclick
     state: present
     update_homebrew: no
 
@@ -41,6 +42,17 @@
     msg: "Inkscape installed successfully: {{ inkscape_version.stdout_lines[0] }}"
   when: inkscape_version.rc == 0
 
+- name: Verify Middleclick installation
+  stat:
+    path: /Applications/Middleclick.app
+  register: middleclick_app
+  changed_when: false
+
+- name: Display Middleclick installation status
+  debug:
+    msg: "Middleclick installed successfully at /Applications/Middleclick.app"
+  when: middleclick_app.stat.exists
+
 - name: Display GUI applications installation summary
   debug:
-    msg: "GUI applications (Visual Studio Code, Inkscape) have been installed successfully!"
+    msg: "GUI applications (Visual Studio Code, Inkscape, Middleclick) have been installed successfully!"
