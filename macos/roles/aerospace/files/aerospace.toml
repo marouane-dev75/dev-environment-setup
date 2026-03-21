@@ -1,12 +1,17 @@
 # AeroSpace configuration file
 # See: https://nikitabobko.github.io/AeroSpace/guide
 
+config-version = 2
+
 # Start AeroSpace at login
 start-at-login = true
 
+# In i3, all workspaces are phantom
+persistent-workspaces = []
+
 # Normalizations. See: https://nikitabobko.github.io/AeroSpace/guide#normalization
 enable-normalization-flatten-containers = false
-enable-normalization-opposite-orientation-for-nested-containers = true
+enable-normalization-opposite-orientation-for-nested-containers = false
 
 # See: https://nikitabobko.github.io/AeroSpace/guide#layouts
 # The 'accordion-padding' specifies the size of accordion padding
@@ -63,6 +68,12 @@ alt-enter = 'exec-and-forget open -n /Applications/Ghostty.app'
 # Sets the split direction for the NEXT window that opens
 alt-h = 'split horizontal'
 alt-v = 'split vertical'
+
+alt-f = 'fullscreen'
+
+alt-s = 'layout v_accordion' # 'layout stacking' in i3
+alt-w = 'layout h_accordion' # 'layout tabbed' in i3
+alt-e = 'layout tiles horizontal vertical' # 'layout toggle split' in i3
 
 # See: https://nikitabobko.github.io/AeroSpace/commands#layout
 alt-slash = 'layout tiles horizontal vertical'
