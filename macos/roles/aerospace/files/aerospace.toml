@@ -1,17 +1,12 @@
 # AeroSpace configuration file
 # See: https://nikitabobko.github.io/AeroSpace/guide
 
-config-version = 2
-
 # Start AeroSpace at login
 start-at-login = true
 
-# In i3, all workspaces are phantom
-persistent-workspaces = []
-
 # Normalizations. See: https://nikitabobko.github.io/AeroSpace/guide#normalization
 enable-normalization-flatten-containers = false
-enable-normalization-opposite-orientation-for-nested-containers = false
+enable-normalization-opposite-orientation-for-nested-containers = true
 
 # See: https://nikitabobko.github.io/AeroSpace/guide#layouts
 # The 'accordion-padding' specifies the size of accordion padding
