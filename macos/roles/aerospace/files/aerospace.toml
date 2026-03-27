@@ -146,3 +146,10 @@ up = 'resize height -50'
 right = 'resize width +50'
 enter = 'mode main'
 esc = 'mode main'
+
+# Force Xcode main windows (with a title) into tiling mode
+# Popups and dialogs (no title or empty title) are left as-is
+[[on-window-detected]]
+if.app-id = 'com.apple.dt.Xcode'
+if.window-title-regex-substring = '.+'
+run = 'layout tiling'
