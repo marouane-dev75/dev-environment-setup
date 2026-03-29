@@ -10,6 +10,7 @@
       - htop
       - tree
       - jq
+      - xcodegen
     state: present
     update_homebrew: no
 
