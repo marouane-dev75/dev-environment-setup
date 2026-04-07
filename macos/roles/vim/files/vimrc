@@ -145,6 +145,10 @@ let g:airline_theme = 'dark'
 nnoremap <C-p> :Files<CR>
 " Ctrl+F to search in files
 nnoremap <C-f> :Rg<CR>
+" F3 to open fzf file finder
+nnoremap <F3> :Files<CR>
+" F4 to switch between buffers via fzf
+nnoremap <F4> :Buffers<CR>
 
 " Key Mappings
 " ============================================================================
