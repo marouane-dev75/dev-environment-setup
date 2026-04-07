@@ -92,6 +92,7 @@ Plug 'vim-airline/vim-airline-themes'
 
 " Git integration
 Plug 'tpope/vim-fugitive'
+Plug 'airblade/vim-gitgutter'
 
 " Syntax highlighting and language support
 Plug 'sheerun/vim-polyglot'
@@ -138,6 +139,31 @@ let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#tabline#formatter = 'unique_tail'
 let g:airline_powerline_fonts = 0
 let g:airline_theme = 'dark'
+
+" GitGutter Configuration
+" ============================================================================
+set signcolumn=yes                        " Always show sign column
+set updatetime=300                        " Faster sign updates (ms)
+highlight GitGutterAdd    ctermfg=2 guifg=#00ff00
+highlight GitGutterChange ctermfg=3 guifg=#ffff00
+highlight GitGutterDelete ctermfg=1 guifg=#ff0000
+let g:gitgutter_enabled = 1
+let g:gitgutter_map_keys = 0             " Disable default key mappings
+nnoremap <leader>gn :GitGutterNextHunk<CR>  " Jump to next changed hunk
+nnoremap <leader>gp :GitGutterPrevHunk<CR>  " Jump to prev changed hunk
+nnoremap <leader>gs :GitGutterStageHunk<CR> " Stage hunk under cursor
+nnoremap <leader>gu :GitGutterUndoHunk<CR>  " Undo hunk under cursor
+nnoremap <leader>gv :GitGutterPreviewHunk<CR> " Preview hunk diff
+nnoremap <F5> :call ToggleGitGutter()<CR>
+function! ToggleGitGutter()
+  if &signcolumn == 'yes'
+    set signcolumn=no
+    GitGutterDisable
+  else
+    set signcolumn=yes
+    GitGutterEnable
+  endif
+endfunction
 
 " FZF Configuration
 " ============================================================================
