@@ -6,7 +6,6 @@
 " ============================================================================
 set nocompatible              " Disable vi compatibility
 set number                    " Show line numbers
-set relativenumber            " Show relative line numbers
 set ruler                     " Show cursor position
 set showcmd                   " Show command in bottom bar
 set cursorline                " Highlight current line
@@ -112,6 +111,8 @@ Plug 'Yggdroot/indentLine'
 
 call plug#end()
 
+autocmd FileType nerdtree setlocal signcolumn=no
+
 " NERDTree Configuration
 " ============================================================================
 " Toggle NERDTree with F2
@@ -171,8 +172,8 @@ endfunction
 nnoremap <C-p> :Files<CR>
 " Ctrl+F to search in files
 nnoremap <C-f> :Rg<CR>
-" F3 to open fzf file finder
-nnoremap <F3> :Files<CR>
+" F3 to show git changed files
+nnoremap <F3> :GFiles?<CR>
 " F4 to switch between buffers via fzf
 nnoremap <F4> :Buffers<CR>
 
@@ -200,8 +201,6 @@ vnoremap <A-k> :m '<-2<CR>gv=gv
 " Toggle line numbers
 nnoremap <leader>l :set number!<CR>
 
-" Toggle relative line numbers
-nnoremap <leader>r :set relativenumber!<CR>
 
 " Indent/unindent in visual mode
 vnoremap < <gv
@@ -258,17 +257,7 @@ set nomodeline                " Disable modeline
 
 " Custom functions
 " ============================================================================
-" Toggle between number and relativenumber
-function! NumberToggle()
-  if(&relativenumber == 1)
-    set norelativenumber
-    set number
-  else
-    set relativenumber
-  endif
-endfunc
-
-nnoremap <leader>t :call NumberToggle()<cr>
+nnoremap <leader>t :set number!<CR>
 
 " Strip trailing whitespace
 function! StripTrailingWhitespace()
