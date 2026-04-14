@@ -22,20 +22,20 @@ alias la='ls -A'
 alias l='ls -CF'
 
 # Git aliases
-alias gc="git commit -m "
+alias gc="claude -p --model sonnet \"\/commit\""
 alias gcl="git clean -f . && git status"
 alias gap="git add -p"
-alias gA="git add -A"
+alias gA="git add -A && git status"
 alias gu="git add -u && git status"
 alias gr="git checkout ."
 alias gst="git status"
 alias gd="clear && git diff"
-alias gb="git branch"
+alias gb="git --no-pager branch"
 alias gl="git log -n3"
-alias gu="git add -u"
-alias gA="git add -A"
 
 # Source additional configurations
 [ -f ~/.config/shell/nvm.sh ] && source ~/.config/shell/nvm.sh
 
 # Add any custom functions or environment variables below
+export PATH="$HOME/.local/bin:$PATH"
+export EDITOR=vim
